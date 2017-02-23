@@ -5,7 +5,6 @@ Created on Sat Nov 05 09:52:13 2016
 @author: dwipr
 
 Utility code for task number 01 : Resize image to half of it's original image.
-Image resized from 1242 x 675 to 621 x187
 
 """
 #%%
@@ -13,17 +12,17 @@ Image resized from 1242 x 675 to 621 x187
 from PIL import Image
 import os
 #%%
-TARGET_WIDTH = 1242 
-TARGET_HEIGHT = 376
+TARGET_WIDTH = 640 
+TARGET_HEIGHT = 192
 def resize_images(task_type):
-    img_input_path = '../input/_temp/raw/training/image_2'
-    img_output_path = '../input/_temp/resized/training/image'
+    img_input_path = '../_temp/padded/train/image/'
+    img_output_path = '../input_small/train/image/'
 
-    gt_input_path = '../input/_temp/raw/training/gt_image_2'
-    gt_output_path = '../input/_temp/resized/training/gt'
+    gt_input_path = '../_temp/padded/train/gt/'
+    gt_output_path = '../input_small/train/gt/'
     
-    test_input_path = '../input/_temp/raw/testing/image_2_um'
-    test_output_path = '../input/_temp/resized/test'
+    test_input_path = '../_temp/padded/test/'
+    test_output_path = '../input_small/test/'
 
     if task_type == 'img':
         input_path = img_input_path
