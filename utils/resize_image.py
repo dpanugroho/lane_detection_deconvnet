@@ -12,17 +12,17 @@ Utility code for task number 01 : Resize image to half of it's original image.
 from PIL import Image
 import os
 #%%
-TARGET_WIDTH = 640 
-TARGET_HEIGHT = 192
+TARGET_WIDTH = 1242 
+TARGET_HEIGHT = 375
 def resize_images(task_type):
-    img_input_path = '../_temp/padded/train/image/'
-    img_output_path = '../input_small/train/image/'
+    img_input_path = '../_temp/raw/train/image/'
+    img_output_path = '../_temp/resized_1242x375/train/image/'
 
-    gt_input_path = '../_temp/padded/train/gt/'
-    gt_output_path = '../input_small/train/gt/'
+    gt_input_path = '../_temp/raw/train/gt/'
+    gt_output_path = '../_temp/resized_1242x375/train/gt/'
     
-    test_input_path = '../_temp/padded/test/'
-    test_output_path = '../input_small/test/'
+    test_input_path = '../_temp/raw/test/'
+    test_output_path = '../_temp/resized_1242x375/test/'
 
     if task_type == 'img':
         input_path = img_input_path

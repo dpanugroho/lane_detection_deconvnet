@@ -27,14 +27,14 @@ def pad_one_image(path, fname):
 #%%
 # Function untuk melakukan padding ke banyak citra sekaligus
 def padd_images(task_type):
-    img_input_path = '../_temp/resized/train/image/'
-    img_output_path = '../_temp/padded/train/image/'
+    img_input_path = '../_temp/resized_1242x375/train/image/'
+    img_output_path = '../_temp/padded_1280_384/train/image/'
 
-    gt_input_path = '../_temp/resized/train/gt/'
-    gt_output_path = '../_temp/padded/train/gt/'
+    gt_input_path = '../_temp/resized_1242x375/train/gt/'
+    gt_output_path = '../_temp/padded_1280_384/train/gt/'
 
-    test_input_path = '../_temp/resized/test/'
-    test_output_path = '../_temp/padded/test/'
+    test_input_path = '../_temp/resized_1242x375/test/'
+    test_output_path = '../_temp/padded_1280_384/test/'
 
     if task_type == 'img':
         input_path = img_input_path
