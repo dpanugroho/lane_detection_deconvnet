@@ -29,6 +29,8 @@ x = tf.placeholder(tf.float32, [None, height, width, 3])
 y = tf.placeholder(tf.float32, [None, height, width, nrclass])
 keepprob = tf.placeholder(tf.float32)
 
+nrclass = config.nrclass
+
 # Kernels
 ksize = config.ksize
 fsize = config.fsize
@@ -36,12 +38,13 @@ initstdev = 0.01
 
 initfun = tf.random_normal_initializer(mean=0.0, stddev=initstdev)
 # initfun = None
-
 weights = {
     'ce1': tf.get_variable("ce1", shape = [ksize, ksize, 3, fsize], initializer = initfun) ,
     'ce2': tf.get_variable("ce2", shape = [ksize, ksize, fsize, fsize], initializer = initfun) ,
     'ce3': tf.get_variable("ce3", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
     'ce4': tf.get_variable("ce4", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
+    'ce5': tf.get_variable("ce5", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
+    'cd5': tf.get_variable("cd5", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
     'cd4': tf.get_variable("cd4", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
     'cd3': tf.get_variable("cd3", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
     'cd2': tf.get_variable("cd2", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
@@ -54,11 +57,14 @@ biases = {
     'be2': tf.get_variable("be2", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'be3': tf.get_variable("be3", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'be4': tf.get_variable("be4", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
+    'be5': tf.get_variable("be5", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
+    'bd5': tf.get_variable("bd5", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'bd4': tf.get_variable("bd4", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'bd3': tf.get_variable("bd3", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'bd2': tf.get_variable("bd2", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
     'bd1': tf.get_variable("bd1", shape = [fsize], initializer = tf.constant_initializer(value=0.0))
 }
+        
 
 #%%
 pred = Model(x, weights, biases, keepprob)
@@ -106,18 +112,4 @@ with tf.Session() as sess:
         end  = int(round(time.time() * 1000))
         print ("Predict time :", float((end-start))/1000, " seconds")
 
-#%%
-def plotNNFilter(units):
-    filters = units.shape[3]
-    plt.figure(1, figsize=(20,20))
-    n_columns = 6
-    n_rows = math.ceil(filters / n_columns) + 1
-    for i in range(filters):
-        plt.subplot(n_rows, n_columns, i+1)
-        plt.title('Filter ' + str(i))
-        plt.imshow(units[0,:,:,i], interpolation="nearest", cmap="gray")
 
-def getActivations(layer,stimuli):
-    units = sess.run(layer,feed_dict={x:np.reshape(stimuli,[192,640],order='F'),keepprob:1.0})
-    plotNNFilter(units)
-    

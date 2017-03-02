@@ -4,11 +4,9 @@ Created on Fri Feb 24 05:58:09 2017
 
 @author: dwipr
 """
-
-import tensorflow as tf
-import matplotlib.pyplot as plt
 import numpy as np
 from train import train
+import tensorflow as tf
 
 
 np.random.seed(149)
@@ -55,7 +53,7 @@ for i in range(len(cv_split_indices)):
     train_label = labels[list(np.asarray(trainIdx, dtype='int')),...]
     validation_label = labels[list(np.asarray(validationIdx, dtype='int')),...]
                               
-    loss, acc = train(n_epochs=1, 
+    loss, acc = train(n_epochs=n_epoch, 
                       trainData=train_images,
                       trainLabelOneHot=train_label,
                       validationData=validation_images,
@@ -63,6 +61,7 @@ for i in range(len(cv_split_indices)):
     
     cv_loss+=loss
     cv_acc+=acc
+    tf.reset_default_graph()
 
 print("CV Loss", cv_loss)
 print ("CV Acc", cv_acc)

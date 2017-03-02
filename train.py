@@ -7,29 +7,26 @@ Created on Fri Feb 17 21:55:33 2017
 
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import tensorflow as tf
 
 import config
-import data_loading
-from model import Model
 
 HI = 0
 
 
-
+selected_model = config.model
+if selected_model == "MODEL_3":
+    import model_3ed as Model
+elif selected_model == "MODEL_4":
+    import model_4ed as Model
+elif selected_model == "MODEL_5":
+    import model_5ed as Model
+else :
+    print("Invalid input for model selection!")
 def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabelOneHot):
-    ntrain = len(trainData)
-    height = config.height 
-    width = config.width
     nrclass = config.nrclass
 
-    #%%
-    # Define functions
-    x = tf.placeholder(tf.float32, [None, height, width, 3])
-    y = tf.placeholder(tf.float32, [None, height, width, nrclass])
-    keepprob = tf.placeholder(tf.float32)
-    
     # Kernels
     ksize = config.ksize
     fsize = config.fsize
@@ -37,12 +34,13 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
     
     initfun = tf.random_normal_initializer(mean=0.0, stddev=initstdev)
     # initfun = None
-    
     weights = {
         'ce1': tf.get_variable("ce1", shape = [ksize, ksize, 3, fsize], initializer = initfun) ,
         'ce2': tf.get_variable("ce2", shape = [ksize, ksize, fsize, fsize], initializer = initfun) ,
         'ce3': tf.get_variable("ce3", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
         'ce4': tf.get_variable("ce4", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
+        'ce5': tf.get_variable("ce5", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
+        'cd5': tf.get_variable("cd5", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
         'cd4': tf.get_variable("cd4", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
         'cd3': tf.get_variable("cd3", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
         'cd2': tf.get_variable("cd2", shape = [ksize, ksize, fsize, fsize], initializer = initfun),
@@ -55,23 +53,40 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
         'be2': tf.get_variable("be2", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'be3': tf.get_variable("be3", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'be4': tf.get_variable("be4", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
+        'be5': tf.get_variable("be5", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
+        'bd5': tf.get_variable("bd5", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'bd4': tf.get_variable("bd4", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'bd3': tf.get_variable("bd3", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'bd2': tf.get_variable("bd2", shape = [fsize], initializer = tf.constant_initializer(value=0.0)),
         'bd1': tf.get_variable("bd1", shape = [fsize], initializer = tf.constant_initializer(value=0.0))
     }
+        
+    ntrain = len(trainData)
+    height = config.height 
+    width = config.width
+    nrclass = config.nrclass
+
+    #%%
+    # Define functions
+    x = tf.placeholder(tf.float32, [None, height, width, 3])
+    y = tf.placeholder(tf.float32, [None, height, width, nrclass])
+    keepprob = tf.placeholder(tf.float32)
     
+
+
+    weights = weights
+    biases = biases
     
     
     #%%
-    pred = Model(x, weights, biases, keepprob)
+    pred = Model.Model(x, weights, biases, keepprob)
     lin_pred = tf.reshape(pred, shape=[-1, nrclass])
     lin_y = tf.reshape(y, shape=[-1, nrclass])
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(lin_pred, lin_y))
     
     # Class label
-    predmax = tf.argmax(pred, 3)
-    ymax = tf.argmax(y, 3)
+#    predmax = tf.argmax(pred, 3)
+#    ymax = tf.argmax(y, 3)
     
     # Accuracy
     corr = tf.equal(tf.argmax(y,3), tf.argmax(pred, 3)) 
@@ -84,7 +99,7 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
     
     print ("Functions ready")
     #%%
-    resumeTraining = True
+    resumeTraining = config.resumeTraining
     with tf.Session() as sess:
         # you need to initialize all variables
         tf.global_variables_initializer().run()
@@ -117,8 +132,8 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
             trainAcc = np.mean(trainAcc)
             
             # Run test
-            valLoss = sess.run(cost, feed_dict={x: validationData, y: validationLabelOneHot, keepprob: 1.})
-            valAcc = sess.run(accr, feed_dict={x: validationData, y: validationLabelOneHot, keepprob: 1.})
+#            valLoss = sess.run(cost, feed_dict={x: validationData, y: validationLabelOneHot, keepprob: 1.})
+#            valAcc = sess.run(accr, feed_dict={x: validationData, y: validationLabelOneHot, keepprob: 1.})
             valLoss = 0.0
             valAcc = 0.0
             
@@ -131,16 +146,16 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
                 saver.save(sess, 'model_chekcpoint/', global_step = epoch_i)
                 
                 # Train data
-                index = np.random.randint(trainData.shape[0])
-                refimg = trainData[index, :, :, :].reshape(height, width, 3)
-                batchData = trainData[index:index+1]
-                batchLabel = trainLabelOneHot[index:index+1]
-                predMaxOut = sess.run(predmax, feed_dict={x: batchData, y: batchLabel, keepprob:1.})
-                yMaxOut = sess.run(ymax, feed_dict={x: batchData, y: batchLabel, keepprob:1.})
-                gtimg = yMaxOut[0].reshape(height, width)
-                errimg = gtimg - predMaxOut[0, :, :].reshape(height, width);
-                
-                # Plot
+#                index = np.random.randint(trainData.shape[0])
+#                refimg = trainData[index, :, :, :].reshape(height, width, 3)
+#                batchData = trainData[index:index+1]
+#                batchLabel = trainLabelOneHot[index:index+1]
+#                predMaxOut = sess.run(predmax, feed_dict={x: batchData, y: batchLabel, keepprob:1.})
+#                yMaxOut = sess.run(ymax, feed_dict={x: batchData, y: batchLabel, keepprob:1.})
+#                gtimg = yMaxOut[0].reshape(height, width)
+#                errimg = gtimg - predMaxOut[0, :, :].reshape(height, width);
+#                
+#                # Plot
 #                plt.figure(figsize=(12, 4)) 
 #                plt.subplot(2, 2, 1); plt.imshow(refimg); plt.title('Input')
 #                plt.subplot(2, 2, 2); plt.imshow(gtimg); plt.title('Ground truth')
@@ -164,15 +179,5 @@ def train(n_epochs, trainData, trainLabelOneHot, validationData, validationLabel
     #            plt.subplot(2, 2, 3); plt.imshow(predMaxOut[0, :, :].reshape(height, width)); plt.title('[Validation] Prediction')
     #            plt.subplot(2, 2, 4); plt.imshow(np.abs(errimg) > 0.5); plt.title('Error')
     #            plt.show()
-    return trainLoss, trainAcc
+    return valLoss, valAcc
 
-
-#trainData, trainLabelOneHot = data_loading.load_data("train")
-##trainlen = len(trainData)
-#
-#validationData, validationLabelOneHot = data_loading.load_data("validation")
-##testlen = len(testimglist)
-#for i in range(2):  
-#    tf.reset_default_graph()
-#    loss, acc = train(1, trainData, trainLabelOneHot, validationData, validationLabelOneHot)
-#    HI = HI+1

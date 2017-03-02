@@ -8,7 +8,7 @@ import glob
 import os
 from PIL import Image
 import numpy as np
-
+import warnings
 import config
 from skimage import io, img_as_bool
 np.random.seed(149)
@@ -37,8 +37,7 @@ def load_data(task):
            
         filesLen = len(imglist)
         for (f1, i) in zip(imglist, range(filesLen)):
-#            print ("[%02d/%02d]f1: %sf2: %s" % (i, trainlen, f1, f2))
-            # Train image
+            # Test image
             img1 = Image.open(f1)
             img1 = img1.resize((width, height))
             rgb  = np.array(img1).reshape(1, height, width, 3)
@@ -68,19 +67,15 @@ def load_data(task):
         filesLen = len(imglist)
 
         for (f1, f2, i) in zip(imglist, annotlist, range(filesLen)):
-            # print ("[%02d/%02d]f1: %sf2: %s" % (i, trainlen, f1, f2))
             # Train image
-
-
             img1 = Image.open(f1)
             img1 = img1.resize((width, height))
             rgb  = np.array(img1).reshape(1, height, width, 3)
-            # Train 
-            
-#            img2 = Image.open(f2).split()[2].convert("1")
-            img2 = img_as_bool(io.imread(f2)[:,:,2])
-#            img2 = img2.resize((width, height), Image.NEAREST)
-            label = np.array(img2).reshape(1, height, width, 1)
+            # Train  Label
+            with warnings.catch_warnings():           
+                warnings.simplefilter("ignore")
+                img2 = img_as_bool(io.imread(f2)[:,:,2])
+                label = np.array(img2).reshape(1, height, width, 1)
             # Stack images and labels
             if i == 0: 
                 data = rgb
@@ -98,4 +93,3 @@ def load_data(task):
                 labelsOneHot[:, row, col, :] = oneHot
         return data, labelsOneHot
             
-#train, label = load_data('train')
