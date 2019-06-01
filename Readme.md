@@ -19,11 +19,11 @@ The convolutional neural network and maxpooling layers in encoder parts plays ro
 - **Unpooling:**
 Unpooling operation is used to increase the generated segmentation by placing pixel from small space to higher space. The placement is based on the location of maxima on its corresponding maxpooling operation (last maxpooling operation will be reference for first unpooling operation). Unpooling results an image in larger size. However these outputs are sparse.
 
-![Encoder-Decoder Architecture](operations.jpg)
-
 - **Deconvolution:**
 The deconvolutional layer takes sparse input and produce dense output. This done by learning filters to produce correct higher dimensional output when multiplied by lower dimensional input.
 
+![Encoder-Decoder Architecture](operations.png)
+(*Noh, H., Hong, S. and Han, B., 2015. Learning deconvolution network for semantic segmentation.*)
 ## Publication
 This project was accepted in The 3rd International Conference on Soft Computing in Data Science and published in Communications in Computer and Information Science, Springer.
 
